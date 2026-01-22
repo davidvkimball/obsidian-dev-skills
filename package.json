@@ -1,0 +1,29 @@
+{
+  "name": "obsidian-dev-skills",
+  "version": "1.0.0",
+  "description": "Agent skills for Obsidian plugin and theme development",
+  "keywords": [
+    "obsidian",
+    "plugin",
+    "theme",
+    "development",
+    "skills",
+    "ai",
+    "agent"
+  ],
+  "homepage": "https://github.com/davidvkimball/obsidian-dev-skills",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidvkimball/obsidian-dev-skills.git"
+  },
+  "license": "MIT",
+  "author": "David V. Kimball",
+  "files": [
+    "obsidian-dev/",
+    "obsidian-ops/",
+    "obsidian-ref/"
+  ],
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
