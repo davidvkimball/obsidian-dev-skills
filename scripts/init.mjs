@@ -124,7 +124,7 @@ async function init() {
     console.log('✅ Updated .agent/sync-status.json');
 
     console.log('\n🎉 Successfully installed Obsidian Dev Skills!');
-    console.log('Your Cursor agent now has access to specialized Obsidian development knowledge.');
+    console.log('Your AI agent now has access to specialized Obsidian development knowledge.');
   } catch (error) {
     console.error('❌ Error during initialization:', error.message);
     process.exit(1);
