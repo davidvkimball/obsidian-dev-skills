@@ -14,42 +14,17 @@ obsidian-dev-skills/
 
 ## Getting Started
 
-### For New Projects
+### For Developers
 
-1. **Clone the sample templates:**
-   ```bash
-   # For plugins
-   git clone https://github.com/davidvkimball/obsidian-sample-plugin-plus.git my-plugin
-   cd my-plugin
+This repository is automatically set up by the `setup-ref-links` script in the template projects.
 
-   # For themes
-   git clone https://github.com/davidvkimball/obsidian-sample-theme-plus.git my-theme
-   cd my-theme
-   ```
+### For Users
 
-2. **Clone this skills repository as a sibling:**
-   ```bash
-   cd ..
-   git clone https://github.com/davidvkimball/obsidian-dev-skills.git obsidian-dev-skills
-   cd my-plugin  # or my-theme
-   ```
+This repository is automatically managed by the template projects. Simply run the `setup-ref-links` script in your template project to get started.
 
-3. **Set up skills symlinks:**
-   ```bash
-   # PowerShell (Windows)
-   .\scripts\setup-skills.ps1
+### For Developers
 
-   # Bash (macOS/Linux)
-   bash scripts/setup-skills.sh
-   ```
-
-### For Existing Projects
-
-If you have an existing Obsidian plugin/theme project:
-
-1. Clone this repository as a sibling directory
-2. Run the appropriate setup script from your sample template
-3. Or manually create symlinks following the pattern in the setup scripts
+The `setup-ref-links` script clones this repository to your `.ref` folder and creates the necessary symlinks.
 
 ## Skills Overview
 

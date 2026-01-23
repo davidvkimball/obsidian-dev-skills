@@ -14,7 +14,7 @@
   "homepage": "https://github.com/davidvkimball/obsidian-dev-skills",
   "repository": {
     "type": "git",
-    "url": "https://github.com/davidvkimball/obsidian-dev-skills.git"
+    "url": "git+https://github.com/davidvkimball/obsidian-dev-skills.git"
   },
   "license": "MIT",
   "author": "David V. Kimball",
