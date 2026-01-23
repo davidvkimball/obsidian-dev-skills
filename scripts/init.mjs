@@ -109,6 +109,50 @@ function detectProjectType(root) {
   return isPlugin ? 'plugin' : 'theme';
 }
 
+/**
+ * Ensures a project-specific skill exists, creating a template if it doesn't.
+ */
+function initializeProjectSkill(targetSkillsDir) {
+  const projectSkillDir = path.join(targetSkillsDir, 'project');
+  const projectSkillFile = path.join(projectSkillDir, 'SKILL.md');
+
+  if (!fs.existsSync(projectSkillFile)) {
+    console.log('📝 Initializing project-specific skill template...');
+    if (!fs.existsSync(projectSkillDir)) {
+      fs.mkdirSync(projectSkillDir, { recursive: true });
+    }
+
+    const template = `---
+name: project
+description: Project-specific architecture, maintenance tasks, and unique conventions. Load when performing project-wide maintenance or working with the core architecture.
+---
+
+# Project Skill
+
+Provide a high-level overview of this project's specific goals and architecture here.
+
+## Core Architecture
+
+- Detail the primary technical stack and how components interact.
+
+## Project-Specific Conventions
+
+- **Naming**: Describe any specific naming patterns used in this repo.
+- **Patterns**: Document unique implementation patterns (e.g., custom hooks, specific state management).
+
+## Key Files
+
+- \`src/main.ts\`: [Description]
+- \`manifest.json\`: [Description]
+
+## Maintenance Tasks
+
+- List recurring tasks like version bumping, CSS testing, or dependency updates.
+`;
+    fs.writeFileSync(projectSkillFile, template, 'utf8');
+  }
+}
+
 async function init() {
   // Determine if we are running in the package's own directory (development)
   const isDevelopment = projectRoot === packageRoot ||
@@ -154,6 +198,9 @@ async function init() {
         console.warn(`⚠️ Warning: Source skill not found at ${sourcePath}`);
       }
     }
+
+    // Ensure project-specific skill exists
+    initializeProjectSkill(skillsDir);
 
     // Update or create sync-status.json
     const syncStatusPath = path.join(agentDir, 'sync-status.json');
