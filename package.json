@@ -1,6 +1,6 @@
 {
   "name": "obsidian-dev-skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Agent skills for Obsidian plugin and theme development",
   "keywords": [
     "obsidian",
@@ -19,10 +19,18 @@
   "license": "MIT",
   "author": "David V. Kimball",
   "files": [
-    "obsidian-dev/",
+    "obsidian-dev-plugins/",
+    "obsidian-dev-themes/",
     "obsidian-ops/",
-    "obsidian-ref/"
+    "obsidian-ref/",
+    "scripts/"
   ],
+  "bin": {
+    "obsidian-dev-skills": "./scripts/init.mjs"
+  },
+  "scripts": {
+    "postinstall": "node ./scripts/init.mjs"
+  },
   "engines": {
     "node": ">=16.0.0"
   }
