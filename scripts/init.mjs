@@ -10,8 +10,32 @@ const __dirname = path.dirname(__filename);
 // The package root is one level up from scripts/
 const packageRoot = path.join(__dirname, '..');
 
-// The project root is where the user is running the command (usually their Obsidian project)
-const projectRoot = process.cwd();
+// Find the real project root where the package is being installed
+function getProjectRoot() {
+  // INIT_CWD is set by npm/pnpm/yarn to the directory where the command was run
+  if (process.env.INIT_CWD) {
+    return process.env.INIT_CWD;
+  }
+
+  // Fallback: traverse up from process.cwd() to find the first package.json 
+  // that isn't the one in this package
+  let current = process.cwd();
+  while (current !== path.parse(current).root) {
+    const pkgPath = path.join(current, 'package.json');
+    if (fs.existsSync(pkgPath)) {
+      try {
+        const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+        if (pkg.name !== 'obsidian-dev-skills') {
+          return current;
+        }
+      } catch (e) {}
+    }
+    current = path.dirname(current);
+  }
+  return process.cwd();
+}
+
+const projectRoot = getProjectRoot();
 
 let agentDir = path.join(projectRoot, '.agent');
 // If .agents exists but .agent doesn't, use .agents
@@ -44,20 +68,17 @@ function copyRecursiveSync(src, dest) {
 }
 
 async function init() {
-  // Skip if we're running inside the obsidian-dev-skills repo itself (development)
-  const pkgJsonPath = path.join(projectRoot, 'package.json');
-  if (fs.existsSync(pkgJsonPath)) {
-    try {
-      const pkg = JSON.parse(fs.readFileSync(pkgJsonPath, 'utf8'));
-      if (pkg.name === 'obsidian-dev-skills' && projectRoot === packageRoot) {
-        console.log('🛠️ Development mode detected, skipping initialization.');
-        return;
-      }
-    } catch (e) {}
+  // Determine if we are running in the package's own directory (development)
+  const isDevelopment = projectRoot === packageRoot || 
+    (fs.existsSync(path.join(packageRoot, 'obsidian-dev-plugins')) && 
+     !fs.existsSync(path.join(projectRoot, 'node_modules', 'obsidian-dev-skills')));
+
+  if (isDevelopment && !process.env.FORCE_INIT) {
+    console.log('🛠️ Development mode detected (or forced skip), skipping initialization.');
+    return;
   }
 
-  console.log('🚀 Initializing Obsidian Dev Skills...');
-
+  console.log(`🚀 Initializing Obsidian Dev Skills in: ${projectRoot}`);
   try {
     // Create .agent/skills directory if it doesn't exist
     if (!fs.existsSync(skillsDir)) {
