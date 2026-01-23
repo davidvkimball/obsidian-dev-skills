@@ -12,19 +12,42 @@ obsidian-dev-skills/
 └── obsidian-ref/             # Technical references
 ```
 
-## Getting Started
+## Installation & Usage
 
-### For Developers
+This package can be used as a development dependency in your Obsidian project.
 
-This repository is automatically set up by the `setup-ref-links` script in the template projects.
+### 1. Install to your project
+```bash
+# Using pnpm (Recommended)
+pnpm add -D obsidian-dev-skills
 
-### For Users
+# Using npm
+npm install --save-dev obsidian-dev-skills
 
-This repository is automatically managed by the template projects. Simply run the `setup-ref-links` script in your template project to get started.
+# Using yarn
+yarn add -D obsidian-dev-skills
+```
 
-### For Developers
+### 2. Initialize localized skills
+Run the initialization script to seed the `.agent/skills/` folder. This also creates a project-specific skill template if one is missing.
 
-The `setup-ref-links` script clones this repository to your `.ref` folder and creates the necessary symlinks.
+```bash
+# Using pnpm (Standard entry point)
+pnpm obsidian-dev-skills
+
+# Using npx (Universal entry point)
+npx obsidian-dev-skills
+
+# Manual execution
+node node_modules/obsidian-dev-skills/scripts/init.mjs
+```
+
+### 3. Sync AI Agents
+Ensure `AGENTS.md` is aligned with the localized skills.
+
+```bash
+npx openskills sync
+```
 
 ## Skills Overview
 
