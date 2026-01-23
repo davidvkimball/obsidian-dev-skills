@@ -6,10 +6,10 @@ This repository contains centralized AI agent skills for Obsidian plugin and the
 
 ```
 obsidian-dev-skills/
-├── obsidian-dev-plugins/     # Plugin development skills
-├── obsidian-dev-themes/      # Theme development skills
-├── obsidian-ops/            # Operations & workflows
-└── obsidian-ref/            # Technical references
+├── obsidian-dev/             # Plugin development skills
+├── obsidian-theme-dev/       # Theme development skills
+├── obsidian-ops/             # Operations & workflows
+└── obsidian-ref/             # Technical references
 ```
 
 ## Getting Started
@@ -28,13 +28,13 @@ The `setup-ref-links` script clones this repository to your `.ref` folder and cr
 
 ## Skills Overview
 
-### obsidian-dev-plugins
+### obsidian-dev
 - TypeScript/JavaScript development patterns
 - Obsidian API usage
 - Plugin lifecycle management
 - Command and settings implementation
 
-### obsidian-dev-themes
+### obsidian-theme-dev
 - CSS/SCSS development patterns
 - Obsidian CSS variables
 - Responsive design

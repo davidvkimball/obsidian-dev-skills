@@ -1,5 +1,5 @@
 ---
-name: obsidian-dev-themes
+name: obsidian-theme-dev
 description: CSS/SCSS development patterns for Obsidian themes. Load when working with theme.css, SCSS variables, or CSS selectors.
 ---
 

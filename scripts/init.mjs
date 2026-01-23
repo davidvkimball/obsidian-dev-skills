@@ -28,7 +28,7 @@ function getProjectRoot() {
         if (pkg.name !== 'obsidian-dev-skills') {
           return current;
         }
-      } catch (e) {}
+      } catch (e) { }
     }
     current = path.dirname(current);
   }
@@ -45,8 +45,8 @@ if (!fs.existsSync(agentDir) && fs.existsSync(path.join(projectRoot, '.agents'))
 const skillsDir = path.join(agentDir, 'skills');
 
 const skillMappings = {
-  'obsidian-dev': 'obsidian-dev-plugins',
-  'obsidian-theme-dev': 'obsidian-dev-themes',
+  'obsidian-dev': 'obsidian-dev',
+  'obsidian-theme-dev': 'obsidian-theme-dev',
   'obsidian-ops': 'obsidian-ops',
   'obsidian-ref': 'obsidian-ref'
 };
@@ -67,11 +67,53 @@ function copyRecursiveSync(src, dest) {
   }
 }
 
+/**
+ * Detects if the project is an Obsidian plugin, theme, or both.
+ * @returns {'plugin' | 'theme' | 'both'}
+ */
+function detectProjectType(root) {
+  const manifestPath = path.join(root, 'manifest.json');
+  const themeCssPath = path.join(root, 'theme.css');
+
+  let isPlugin = false;
+  let isTheme = false;
+
+  if (fs.existsSync(manifestPath)) {
+    try {
+      const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+      if (manifest.id) {
+        isPlugin = true;
+      } else {
+        // Obsidian themes also have a manifest.json but typically no 'id' field
+        isTheme = true;
+      }
+    } catch (e) {
+      console.warn(`⚠️ Warning: Failed to parse manifest.json at ${manifestPath}`);
+    }
+  }
+
+  if (fs.existsSync(themeCssPath)) {
+    isTheme = true;
+  }
+
+  // If detected both, return 'both'
+  if (isPlugin && isTheme) {
+    return 'both';
+  }
+
+  // If detected neither, return 'both' (fallback)
+  if (!isPlugin && !isTheme) {
+    return 'both';
+  }
+
+  return isPlugin ? 'plugin' : 'theme';
+}
+
 async function init() {
   // Determine if we are running in the package's own directory (development)
-  const isDevelopment = projectRoot === packageRoot || 
-    (fs.existsSync(path.join(packageRoot, 'obsidian-dev-plugins')) && 
-     !fs.existsSync(path.join(projectRoot, 'node_modules', 'obsidian-dev-skills')));
+  const isDevelopment = projectRoot === packageRoot ||
+    (fs.existsSync(path.join(packageRoot, 'obsidian-dev')) &&
+      !fs.existsSync(path.join(projectRoot, 'node_modules', 'obsidian-dev-skills')));
 
   if (isDevelopment && !process.env.FORCE_INIT) {
     console.log('🛠️ Development mode detected (or forced skip), skipping initialization.');
@@ -80,6 +122,9 @@ async function init() {
 
   console.log(`🚀 Initializing Obsidian Dev Skills in: ${projectRoot}`);
   try {
+    const projectType = detectProjectType(projectRoot);
+    console.log(`🔍 Detected project type: ${projectType}`);
+
     // Create .agent/skills directory if it doesn't exist
     if (!fs.existsSync(skillsDir)) {
       console.log(`📁 Creating directory: ${skillsDir}`);
@@ -87,6 +132,14 @@ async function init() {
     }
 
     for (const [targetName, sourceName] of Object.entries(skillMappings)) {
+      // Filter based on project type
+      if (projectType === 'plugin' && targetName === 'obsidian-theme-dev') {
+        continue;
+      }
+      if (projectType === 'theme' && targetName === 'obsidian-dev') {
+        continue;
+      }
+
       const sourcePath = path.join(packageRoot, sourceName);
       const targetPath = path.join(skillsDir, targetName);
 
@@ -105,7 +158,7 @@ async function init() {
     // Update or create sync-status.json
     const syncStatusPath = path.join(agentDir, 'sync-status.json');
     const today = new Date().toISOString().split('T')[0];
-    
+
     let syncStatus = {
       lastFullSync: today,
       lastSyncSource: 'obsidian-dev-skills initialization'
