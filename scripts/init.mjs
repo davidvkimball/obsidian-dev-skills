@@ -261,9 +261,7 @@ Example:
 
 async function init() {
   // Determine if we are running in the package's own directory (development)
-  const isDevelopment = projectRoot === packageRoot ||
-    (fs.existsSync(path.join(packageRoot, 'obsidian-dev')) &&
-      !fs.existsSync(path.join(projectRoot, 'node_modules', 'obsidian-dev-skills')));
+  const isDevelopment = projectRoot === packageRoot;
 
   if (isDevelopment && !process.env.FORCE_INIT) {
     console.log('🛠️ Development mode detected (or forced skip), skipping initialization.');
