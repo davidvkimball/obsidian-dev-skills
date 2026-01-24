@@ -1,4 +1,4 @@
-# Setup skills symlinks for Obsidian Sample Plugin Plus
+# Setup skills symlinks for this repository
 # This script creates symlinks to the obsidian-dev-skills repository
 
 param(

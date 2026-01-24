@@ -127,9 +127,25 @@ name: project
 description: Project-specific architecture, maintenance tasks, and unique conventions. Load when performing project-wide maintenance or working with the core architecture.
 ---
 
-# Project Skill
+# Project Context
 
-Provide a high-level overview of this project's specific goals and architecture here.
+This skill provides the unique context and architectural details for this repository.
+
+## Purpose
+
+To provide guidance on project-specific structures and tasks that differ from general Obsidian development patterns.
+
+## When to Use
+
+Load this skill when:
+- Understanding the repository's unique architecture.
+- Performing recurring maintenance tasks.
+- Following project-specific coding conventions.
+
+## Project Overview
+
+- **Architecture**: Organized structure with main code in \`src/main.ts\` and settings in \`src/settings.ts\`.
+- **Reference Management**: Uses a \`.ref\` folder with symlinks to centralized Obsidian repositories for API and documentation.
 
 ## Core Architecture
 
