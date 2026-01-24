@@ -97,7 +97,7 @@ Each project maintains its own `sync-status.json` file to track when reference m
   
 - **AI Agents**: Compatible with any AI agent supporting the Open Cognitive Skills (OCS) Specification  
 - **IDEs**: Works across all development environments (VS Code, Cursor, JetBrains IDEs, etc.)  
-- **Specification**: Open Cognitive Skills (OCS) - [https://github.com/AI-CAMEL/Skills-Specification](https://github.com/AI-CAMEL/Skills-Specification)
+- **Specification**: Works with the [OpenSkills](https://github.com/numman-ali/openskills) AGENTS.md format
 
 ## Contributing
 
