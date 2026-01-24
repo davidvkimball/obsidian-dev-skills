@@ -110,6 +110,88 @@ function detectProjectType(root) {
 }
 
 /**
+ * Updates AGENTS.md in the project root to include the installed skills in the openskills format.
+ */
+function updateAgentsMarkdown(root, installedSkills) {
+  const agentsPath = path.join(root, 'AGENTS.md');
+  const agentDirName = path.basename(agentDir); // .agent or .agents
+
+  const skillDetails = {
+    'obsidian-dev': 'Core development patterns for Obsidian plugins. Load when editing src/main.ts, implementing features, handling API calls, or managing plugin lifecycle.',
+    'obsidian-theme-dev': 'CSS/SCSS development patterns for Obsidian themes. Load when working with theme.css, SCSS variables, or CSS selectors.',
+    'obsidian-ops': 'Operations, syncing, versioning, and release management for Obsidian projects. Load when running builds, syncing references, bumping versions, or preparing for release.',
+    'obsidian-ref': 'Technical references, manifest rules, file formats, and UX guidelines for Obsidian. Load when checking API details, manifest requirements, or UI/UX standards.',
+    'project': 'Project-specific architecture, maintenance tasks, and unique conventions for this repository. Load when performing project-wide maintenance or working with the core architecture.'
+  };
+
+  const skillTags = installedSkills
+    .map(skill => {
+      const description = skillDetails[skill] || 'Specialized skill for this project.';
+      return `<skill>
+<name>${skill}</name>
+<description>${description}</description>
+<location>project</location>
+</skill>`;
+    })
+    .join('\n\n');
+
+  const xmlSection = `<skills_system priority="1">
+
+## Available Skills
+
+<!-- SKILLS_TABLE_START -->
+<usage>
+When users ask you to perform tasks, check if any of the available skills below can help complete the task more effectively. Skills provide specialized capabilities and domain knowledge.
+
+How to use skills:
+- Read skill: \`cat ./${agentDirName}/skills/<skill-name>/SKILL.md\`
+- The skill content will load with detailed instructions on how to complete the task
+- Skills are stored locally in ./${agentDirName}/skills/ directory
+
+Usage notes:
+- Only use skills listed in <available_skills> below
+- Do not invoke a skill that is already loaded in your context
+- Each skill invocation is stateless
+</usage>
+
+<available_skills>
+
+${skillTags}
+
+</available_skills>
+<!-- SKILLS_TABLE_END -->
+
+</skills_system>`;
+
+  let content = '';
+  if (fs.existsSync(agentsPath)) {
+    content = fs.readFileSync(agentsPath, 'utf8');
+
+    const startMarker = '<skills_system';
+    const endMarker = '</skills_system>';
+    const htmlStartMarker = '<!-- SKILLS_TABLE_START -->';
+    const htmlEndMarker = '<!-- SKILLS_TABLE_END -->';
+
+    if (content.includes(startMarker)) {
+      const regex = /<skills_system[^>]*>[\s\S]*?<\/skills_system>/;
+      content = content.replace(regex, xmlSection);
+    } else if (content.includes(htmlStartMarker)) {
+      // Logic parity with openskills: replace content between HTML markers if XML tag is missing
+      const innerContent = xmlSection.replace(/<skills_system[^>]*>|<\/skills_system>/g, '').trim();
+      const regex = new RegExp(`${htmlStartMarker}[\\s\\S]*?${htmlEndMarker}`, 'g');
+      content = content.replace(regex, `${htmlStartMarker}\n${innerContent}\n${htmlEndMarker}`);
+    } else {
+      content = content.trimEnd() + '\n\n' + xmlSection + '\n';
+    }
+  } else {
+    content = '# AGENTS\n\nThis project uses specialized AI agent skills for development.\n\n' + xmlSection + '\n';
+  }
+
+  fs.writeFileSync(agentsPath, content, 'utf8');
+  console.log('📝 Updated AGENTS.md (openskills format)');
+}
+
+/**
  * Ensures a project-specific skill exists, creating a template if it doesn't.
  */
 function initializeProjectSkill(targetSkillsDir) {
@@ -144,26 +226,34 @@ Load this skill when:
 
 ## Project Overview
 
+<!-- 
+TIP: Update this section with your project's high-level architecture.
+Example:
 - **Architecture**: Organized structure with main code in \`src/main.ts\` and settings in \`src/settings.ts\`.
-- **Reference Management**: Uses a \`.ref\` folder with symlinks to centralized Obsidian repositories for API and documentation.
+- **Reference Management**: Uses a \`.ref\` folder with symlinks to centralized Obsidian repositories.
+-->
+
+- **Primary Stack**: [e.g., TypeScript, Svelte, Lucide icons]
+- **Key Directories**: [e.g., src/, styles/, scripts/]
 
 ## Core Architecture
 
-- Detail the primary technical stack and how components interact.
+- [Detail how primary components interact here]
 
 ## Project-Specific Conventions
 
-- **Naming**: Describe any specific naming patterns used in this repo.
-- **Patterns**: Document unique implementation patterns (e.g., custom hooks, specific state management).
+- **Naming**: [e.g., class names use PascalCase, private methods prefixed with _]
+- **Patterns**: [e.g., use of custom stores, specific state management]
 
 ## Key Files
 
-- \`src/main.ts\`: [Description]
-- \`manifest.json\`: [Description]
+- \`manifest.json\`: Plugin/theme manifest
+- \`package.json\`: Build scripts and dependencies
 
 ## Maintenance Tasks
 
-- List recurring tasks like version bumping, CSS testing, or dependency updates.
+- [e.g., npm run dev to start development server]
+- [e.g., npm run version-bump to release new version]
 `;
     fs.writeFileSync(projectSkillFile, template, 'utf8');
   }
@@ -217,6 +307,15 @@ async function init() {
 
     // Ensure project-specific skill exists
     initializeProjectSkill(skillsDir);
+
+    // Update AGENTS.md
+    const installedSkills = Object.keys(skillMappings).filter(name => {
+      if (projectType === 'plugin' && name === 'obsidian-theme-dev') return false;
+      if (projectType === 'theme' && name === 'obsidian-dev') return false;
+      return true;
+    });
+    installedSkills.push('project'); // Always include project skill
+    updateAgentsMarkdown(projectRoot, installedSkills);
 
     // Update or create sync-status.json
     const syncStatusPath = path.join(agentDir, 'sync-status.json');
