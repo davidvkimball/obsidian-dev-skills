@@ -29,7 +29,7 @@ yarn add -D obsidian-dev-skills
 ```
 
 ### 2. Initialize localized skills
-Run the initialization script to seed the `.agent/skills/` folder. This also creates a project-specific skill template if one is missing.
+Run the initialization script to seed the `.agent/skills/` folder and sync `AGENTS.md`. This also creates a project-specific skill template if one is missing.
 
 ```bash
 # Using pnpm (Standard entry point)
@@ -40,13 +40,6 @@ npx obsidian-dev-skills
 
 # Manual execution
 node node_modules/obsidian-dev-skills/scripts/init.mjs
-```
-
-### 3. Sync AI Agents
-Ensure `AGENTS.md` is aligned with the localized skills.
-
-```bash
-npx openskills sync
 ```
 
 ## Skills Overview
@@ -97,7 +90,7 @@ Each project maintains its own `sync-status.json` file to track when reference m
   
 - **AI Agents**: Compatible with any AI agent supporting the Open Cognitive Skills (OCS) Specification  
 - **IDEs**: Works across all development environments (VS Code, Cursor, JetBrains IDEs, etc.)  
-- **Specification**: Works with the [OpenSkills](https://github.com/numman-ali/openskills) AGENTS.md format
+- **Specification**: Compatible with the [OpenSkills](https://github.com/numman-ali/openskills) format
 
 ## Contributing
 
