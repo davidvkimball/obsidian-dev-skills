@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import readline from 'readline';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -107,6 +108,47 @@ function detectProjectType(root) {
   }
 
   return isPlugin ? 'plugin' : 'theme';
+}
+
+/**
+ * Asks the user to select a project type if it's ambiguous.
+ * @returns {Promise<'plugin' | 'theme' | 'both'>}
+ */
+function askProjectType() {
+  return new Promise((resolve) => {
+    if (!process.stdin.isTTY) {
+      resolve('both');
+      return;
+    }
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    console.log('\n❓ The project type is not immediately clear.');
+    console.log('Is this an Obsidian plugin project, a theme project, or both?');
+    console.log('Choices: [p]lugin, [t]heme, [b]oth (default)');
+
+    const handleAnswer = (answer) => {
+      const cleanAnswer = answer.trim().toLowerCase();
+      if (cleanAnswer === 'p' || cleanAnswer === 'plugin') {
+        rl.close();
+        resolve('plugin');
+      } else if (cleanAnswer === 't' || cleanAnswer === 'theme') {
+        rl.close();
+        resolve('theme');
+      } else if (cleanAnswer === 'b' || cleanAnswer === 'both' || cleanAnswer === '') {
+        rl.close();
+        resolve('both');
+      } else {
+        console.log('Invalid choice. Please enter p, t, or b.');
+        rl.question('> ', handleAnswer);
+      }
+    };
+
+    rl.question('> ', handleAnswer);
+  });
 }
 
 /**
@@ -270,8 +312,13 @@ async function init() {
 
   console.log(`🚀 Initializing Obsidian Dev Skills in: ${projectRoot}`);
   try {
-    const projectType = detectProjectType(projectRoot);
-    console.log(`🔍 Detected project type: ${projectType}`);
+    let projectType = detectProjectType(projectRoot);
+
+    if (projectType === 'both' && process.stdin.isTTY) {
+      projectType = await askProjectType();
+    }
+
+    console.log(`🔍 Using project type: ${projectType}`);
 
     // Create .agent/skills directory if it doesn't exist
     if (!fs.existsSync(skillsDir)) {
