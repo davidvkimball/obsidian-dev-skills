@@ -23,7 +23,6 @@ Load this skill when:
 
 - Follow established patterns for your project type (plugin/theme)
 - Use appropriate tools and conventions
-- Test thoroughly across different environments
 - Document important decisions and patterns
 
 ## Bundled Resources

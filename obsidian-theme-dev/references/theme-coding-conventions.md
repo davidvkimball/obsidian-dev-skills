@@ -36,7 +36,7 @@
 - Always use Obsidian CSS variables when available
 - Comment complex selectors and their purpose
 - Group related styles together
-- Test in both light and dark themes
+- Verify in both light and dark themes
 
 ### Performance
 - Avoid universal selectors (`*`)

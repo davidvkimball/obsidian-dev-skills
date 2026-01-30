@@ -25,7 +25,7 @@ Load this skill when:
 - **Use Obsidian CSS Variables**: Always prefer Obsidian's built-in CSS variables over hardcoded values
 - **Follow BEM Methodology**: Use Block-Element-Modifier naming for CSS classes
 - **Mobile-First**: Consider mobile layouts and responsive design
-- **Dark/Light Mode Support**: Test themes in both light and dark modes
+- **Dark/Light Mode Support**: Verify themes work in both light and dark modes
 - **Performance**: Minimize CSS complexity and avoid expensive selectors
 
 ## Bundled Resources
