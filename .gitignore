@@ -19,3 +19,5 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+scripts/bulk-update.mjs
+scripts/check-status.mjs
