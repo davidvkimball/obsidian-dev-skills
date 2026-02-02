@@ -11,16 +11,29 @@ const __dirname = path.dirname(__filename);
 // The package root is one level up from scripts/
 const packageRoot = path.join(__dirname, '..');
 
+/**
+ * Compares two paths for equality, handling platform-specific differences.
+ */
+function arePathsEqual(path1, path2) {
+  if (!path1 || !path2) return false;
+  const norm1 = path.normalize(path1).replace(/[\\/]$/, '');
+  const norm2 = path.normalize(path2).replace(/[\\/]$/, '');
+
+  if (process.platform === 'win32') {
+    return norm1.toLowerCase() === norm2.toLowerCase();
+  }
+  return norm1 === norm2;
+}
+
+// Find the real project root where the package is being installed
 // Find the real project root where the package is being installed
 function getProjectRoot() {
-  // INIT_CWD is set by npm/pnpm/yarn to the directory where the command was run
-  if (process.env.INIT_CWD) {
-    return process.env.INIT_CWD;
-  }
+  // We want to find the root of the project, which is the directory containing 
+  // the first package.json that isn't for 'obsidian-dev-skills' (unless it's the dev repo).
+  // We start from INIT_CWD (where the command was run) or process.cwd() as fallback.
+  const initial = process.env.INIT_CWD || process.cwd();
+  let current = initial;
 
-  // Fallback: traverse up from process.cwd() to find the first package.json 
-  // that isn't the one in this package
-  let current = process.cwd();
   while (current !== path.parse(current).root) {
     const pkgPath = path.join(current, 'package.json');
     if (fs.existsSync(pkgPath)) {
@@ -29,11 +42,20 @@ function getProjectRoot() {
         if (pkg.name !== 'obsidian-dev-skills') {
           return current;
         }
+        // If we found 'obsidian-dev-skills', check if we are in node_modules.
+        // If we are NOT in node_modules, this is likely the development repository.
+        if (!current.toLowerCase().includes('node_modules')) {
+          return current;
+        }
       } catch (e) { }
     }
-    current = path.dirname(current);
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
   }
-  return process.cwd();
+
+  // Fallback to the initial directory if no project root found
+  return initial;
 }
 
 const projectRoot = getProjectRoot();
@@ -303,10 +325,13 @@ Example:
 
 async function init() {
   // Determine if we are running in the package's own directory (development)
-  const isDevelopment = projectRoot === packageRoot;
+  const isDevelopment = arePathsEqual(projectRoot, packageRoot);
 
   if (isDevelopment && !process.env.FORCE_INIT) {
-    console.log('🛠️ Development mode detected (or forced skip), skipping initialization.');
+    console.log('🛠️ Development mode detected: skipping initialization in the skills repository.');
+    console.log('💡 To force initialization (e.g., for testing), run:');
+    console.log('   $env:FORCE_INIT=1; pnpm obsidian-dev-skills  (PowerShell)');
+    console.log('   FORCE_INIT=1 pnpm obsidian-dev-skills       (Bash/Zsh)');
     return;
   }
 
