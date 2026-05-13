@@ -26,7 +26,8 @@
     "obsidian-theme-dev/",
     "obsidian-ops/",
     "obsidian-ref/",
-    "scripts/"
+    "scripts/init.mjs",
+    "scripts/setup-local.ps1"
   ],
   "bin": {
     "obsidian-dev-skills": "./scripts/init.mjs"
