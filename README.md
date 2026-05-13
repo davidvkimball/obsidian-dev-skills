@@ -49,6 +49,7 @@ node node_modules/obsidian-dev-skills/scripts/init.mjs
 - Obsidian API usage
 - Plugin lifecycle management
 - Command and settings implementation
+- `obsidianmd` ESLint rule patterns (`createDiv`/`createSpan`, `activeWindow`, `activeDocument`, sentence case)
 
 ### obsidian-theme-dev
 - CSS/SCSS development patterns
@@ -61,6 +62,9 @@ node node_modules/obsidian-dev-skills/scripts/init.mjs
 - Version management
 - Sync procedures
 - Testing and quality assurance
+- Obsidian community **scorecard compliance** mapping (vulnerable transitive dep handling via `pnpm.overrides`, duplicate CSS selector detection, ESLint rule violations)
+- Release workflow with **build provenance attestation** (`actions/attest-build-provenance@v2`)
+- Portable **`CONTRIBUTING.md` template** for the scorecard hygiene check
 
 ### obsidian-ref
 - API documentation
@@ -80,7 +84,10 @@ Each project should also have a `project/` skill in `.agent/skills/project/` tha
 
 ### Updating Skills
 
-When skills are updated in this repository, all linked projects automatically get the updates. No manual sync required.
+The update flow depends on how a project consumes this package:
+
+- **npm install (default)**: When this package publishes a new version, downstream projects pick up updates the next time they run `pnpm obsidian-dev-skills` (or the equivalent npx/manual command). The init script re-copies skill files into `.agent/skills/`.
+- **Sibling clone + symlinks (advanced)**: If a project symlinks `.agent/skills/<name>` to a sibling clone of this repository (e.g. via `scripts/setup-local.ps1`), updates appear instantly the moment files change here, with no per-project sync step.
 
 ### Tracking Sync Status
 

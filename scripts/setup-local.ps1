@@ -1,8 +1,11 @@
-# Setup skills symlinks for this repository
-# This script creates symlinks to the obsidian-dev-skills repository
+# Setup skills symlinks for a downstream project
+# This script creates symlinks to the obsidian-dev-skills repository.
+# Intended to be copied into a downstream project's scripts/ directory.
+# The default $SkillsRepoPath assumes obsidian-dev-skills is a sibling
+# of the downstream project's repository root.
 
 param(
-    [string]$SkillsRepoPath = "$PSScriptRoot\..\obsidian-dev-skills"
+    [string]$SkillsRepoPath = "$PSScriptRoot\..\..\obsidian-dev-skills"
 )
 
 $ErrorActionPreference = "Stop"
