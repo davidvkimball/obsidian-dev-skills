@@ -1,6 +1,6 @@
 {
   "name": "obsidian-dev-skills",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Agent skills for Obsidian plugin and theme development, including community scorecard compliance, release workflow attestation, and dependency vulnerability hygiene.",
   "keywords": [
     "obsidian",
