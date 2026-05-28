@@ -28,9 +28,12 @@ function arePathsEqual(path1, path2) {
 // Find the real project root where the package is being installed
 // Find the real project root where the package is being installed
 function getProjectRoot() {
-  // We want to find the root of the project, which is the directory containing 
-  // the first package.json that isn't for 'obsidian-dev-skills' (unless it's the dev repo).
+  // We want to find the root of the project, which is the directory containing
+  // the first package.json that isn't this package (unless it's the dev repo).
+  // Both the scoped name and the legacy unscoped name are recognized so the
+  // check keeps working across the rename.
   // We start from INIT_CWD (where the command was run) or process.cwd() as fallback.
+  const SELF_NAMES = ['@davidvkimball/obsidian-dev-skills', 'obsidian-dev-skills'];
   const initial = process.env.INIT_CWD || process.cwd();
   let current = initial;
 
@@ -39,10 +42,10 @@ function getProjectRoot() {
     if (fs.existsSync(pkgPath)) {
       try {
         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-        if (pkg.name !== 'obsidian-dev-skills') {
+        if (!SELF_NAMES.includes(pkg.name)) {
           return current;
         }
-        // If we found 'obsidian-dev-skills', check if we are in node_modules.
+        // If we found this package, check if we are in node_modules.
         // If we are NOT in node_modules, this is likely the development repository.
         if (!current.toLowerCase().includes('node_modules')) {
           return current;
