@@ -18,6 +18,38 @@ Settings tabs are covered by the dedicated **`settings` skill** — use it for a
 
 `SettingGroup` is always available at these projects' `minAppVersion` (1.11+) — use it directly, with no `requireApiVersion()` guards or pre-1.11 fallbacks. Sentence case for all UI text (names, descriptions, headings).
 
+## Multi-window: target the app window, not `activeDocument`
+
+**Source**: Obsidian 1.13 changelog ("Settings now open in a new window") + `Workspace.containerEl` in `.ref/obsidian-api/obsidian.d.ts`
+
+Obsidian renders across multiple OS windows: pop-out leaves, and — since **1.13** — the Settings window. The globals `activeDocument` / `activeWindow` track **whichever window currently has focus**. During a settings `onChange` (or any handler that runs while a pop-out is focused) they point at the *other* window.
+
+So any code that applies persistent UI to the **main app window** — toggling `<body>` classes, setting CSS variables, injecting a `<style>` into `<head>`, or inserting/replacing a ribbon/toolbar button — must NOT use `activeDocument`. On 1.13 the change lands in the Settings window and the user sees nothing change until restart. (This was a real fleet-wide bug: settings appeared to "not apply in real time".)
+
+Use the workspace container's owner document, which always lives in the main window:
+
+```ts
+export default class MyPlugin extends Plugin {
+  // The main app window's document — stable for the app's lifetime, and
+  // unaffected by which window (Settings, pop-out) currently has focus.
+  private get doc(): Document {
+    return this.app.workspace.containerEl.ownerDocument;
+  }
+
+  applyStyles() {
+    this.doc.body.classList.toggle("my-feature-on", this.settings.featureOn);
+  }
+}
+```
+
+In a manager/service class that holds a plugin reference, expose the same getter via `this.plugin.app.workspace.containerEl.ownerDocument`. For a standalone utility, accept an optional `getDoc?: () => Document` and fall back to `activeDocument` when omitted.
+
+**Do / Don't**
+- ✅ `this.app.workspace.containerEl.ownerDocument` for body classes, CSS vars, `<style>` injection, and button swaps that must affect the editing window.
+- ✅ `activeDocument` is still correct for things that belong to the focused window: modal/suggest DOM you're building, reading a context menu the user just opened, transient measurement nodes.
+- ❌ `activeDocument.body.classList.add(...)` / `activeDocument.head.appendChild(styleEl)` reached from a settings `onChange` — lands in the Settings window on 1.13+.
+- ⚠️ Observers (`observer.observe(activeDocument.body, …)`) set up once at `onload` are fine (the main window is focused then), but re-creating them from a settings change can attach to the wrong window — prefer the `doc` getter there too.
+
 ## Modal with Form Input
 
 **Source**: Based on `.ref/obsidian-plugin-docs/docs/guides/modals.md`
