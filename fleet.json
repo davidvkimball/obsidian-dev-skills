@@ -1,0 +1,54 @@
+{
+  "$comment": "Single source of truth for which repos the fleet scripts operate on. Every script reads this instead of carrying its own hardcoded list. Add a repo the day you create it, so fleet-wide audits actually cover it.",
+  "root": "C:\\Users\\david\\Development",
+  "expected": {
+    "eslintPluginObsidianmd": "0.4.1",
+    "tsconfigLib": ["DOM", "ES2020"]
+  },
+  "plugins": [
+    "obsidian-astro-composer",
+    "obsidian-astro-modular-settings",
+    "obsidian-axis-settings",
+    "obsidian-bases-cms",
+    "obsidian-custom-slides",
+    "obsidian-disable-tabs",
+    "obsidian-explorer-focus",
+    "obsidian-extended-embeds",
+    "obsidian-file-name-history",
+    "obsidian-home-base",
+    "obsidian-image-manager",
+    "obsidian-oxygen-settings",
+    "obsidian-periodic-links",
+    "obsidian-property-over-file-name",
+    "obsidian-seo",
+    "obsidian-ui-tweaker",
+    "obsidian-vault-cms",
+    "obsidian-yeet"
+  ],
+  "themes": [
+    "obsidian-oxygen"
+  ],
+  "templates": [
+    "obsidian-sample-plugin-plus",
+    "obsidian-sample-theme-plus"
+  ],
+  "excluded": {
+    "$comment": "Not maintained by David. Never bump, tag, or release these.",
+    "obsidian-zenmode": "contributed to, not primary maintainer",
+    "obsidian-editing-toolbar": "not David's to maintain",
+    "obsidian-nested-properties": "helped with, not primary maintainer",
+    "obsidian-node-masquerade-ref": "reference clone (ElsaTam)",
+    "obsidian-vault-nickname": "reference clone (rscopic)"
+  },
+  "unclassified": {
+    "$comment": "Present in the root but not yet triaged. fleet-audit reports these so they get classified rather than silently skipped. Move each into plugins/themes/templates or excluded.",
+    "repos": [
+      "obsidian-commander",
+      "obsidian-data-files-editor",
+      "obsidian-image-darkmodifier",
+      "obsidian-link-as",
+      "obsidian-lite",
+      "obsidian-tag-mirror"
+    ]
+  }
+}

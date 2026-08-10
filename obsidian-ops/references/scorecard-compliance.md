@@ -493,6 +493,19 @@ rm tsconfig.probe.json
 
 Errors of the form `TS2550: Property 'values' does not exist on type 'ObjectConstructor'. Do you need to change your target library?` land on exactly the lines the scorecard flags. Zero errors means the plugin is unaffected and needs no change.
 
+## Auditing the whole fleet
+
+The drift described above is invisible to a per-repo `pnpm lint`, so check it across every repo at once:
+
+```bash
+node scripts/fleet-audit.mjs           # config drift only
+node scripts/fleet-audit.mjs --probe   # also compile-probe the TypeScript lib
+```
+
+It is read-only and never edits, commits, or releases. It reports, per repo: a tsconfig lib that stops at ES2016, an `eslint-plugin-obsidianmd` pin behind the expected version, the broken recommended-config mapping, and `pnpm.overrides` left in `package.json`.
+
+The repo list comes from `fleet.json`, which is the single source of truth for the fleet scripts. Repos that are not David's to release live in its `excluded` map; anything found in the root but not yet classified is reported under "Unclassified" rather than silently skipped, so new repos cannot quietly fall out of fleet-wide audits.
+
 ## Verification Workflow
 
 After applying fixes:
