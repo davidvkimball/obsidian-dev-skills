@@ -7,6 +7,8 @@
  * Usage:
  *   node scripts/fleet-audit.mjs            audit plugins, themes and templates
  *   node scripts/fleet-audit.mjs --probe    also run the TypeScript lib probe
+ *   node scripts/fleet-audit.mjs --releases also check each manifest version has
+ *                                           a matching GitHub release (needs gh)
  *   node scripts/fleet-audit.mjs --json     machine-readable output
  *
  * The --probe pass compiles each repo with `types: []` and counts TS2550
@@ -26,6 +28,7 @@ const fleet = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fleet.json'
 const args = process.argv.slice(2);
 const doProbe = args.includes('--probe');
 const asJson = args.includes('--json');
+const doReleases = args.includes('--releases');
 
 /** Libs that predate Object.values/entries (ES2017) and Array.flat (ES2019). */
 const STALE_LIBS = new Set(['es5', 'es6', 'es2015', 'es7', 'es2016']);
@@ -110,12 +113,39 @@ function probeLibErrors(repo) {
 	}
 }
 
+/**
+ * A manifest version with no matching GitHub release makes the plugin
+ * undistributable: the directory installs assets from the release tagged with
+ * that version, so it can neither scan nor ship the plugin until one exists.
+ * This is silent locally, which is how a bumped-but-unreleased manifest hides.
+ */
+function checkManifestHasRelease(repo) {
+	const file = path.join(repo, 'manifest.json');
+	if (!fs.existsSync(file)) return { skip: true };
+	const version = JSON.parse(fs.readFileSync(file, 'utf8')).version;
+	let latest = '';
+	try {
+		latest = execSync('gh release view --json tagName --jq .tagName', {
+			cwd: repo,
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'ignore'],
+		}).trim();
+	} catch {
+		return { ok: false, detail: `manifest ${version}, no GitHub release found` };
+	}
+	return latest === version
+		? { ok: true, detail: version }
+		: { ok: false, detail: `manifest ${version}, latest release ${latest} (not distributable)` };
+}
+
 const CHECKS = [
 	['tsconfig lib', checkTsconfigLib],
 	['obsidianmd ver', checkLintPluginVersion],
 	['eslint config', checkEslintConfigPattern],
 	['pnpm overrides', checkPnpmOverridesLocation],
 ];
+
+if (doReleases) CHECKS.push(['manifest release', checkManifestHasRelease]);
 
 const targets = [
 	...fleet.plugins.map((n) => ({ name: n, kind: 'plugin' })),
@@ -133,6 +163,9 @@ for (const { name, kind } of targets) {
 	const issues = [];
 	const detail = {};
 	for (const [label, fn] of CHECKS) {
+		// Templates carry a placeholder version and are never distributed
+		// through the directory, so a matching release is not expected.
+		if (label === 'manifest release' && kind === 'template') continue;
 		const r = fn(repo);
 		if (r.skip) continue;
 		detail[label] = r.detail;

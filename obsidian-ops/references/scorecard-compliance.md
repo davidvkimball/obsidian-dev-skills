@@ -493,6 +493,20 @@ rm tsconfig.probe.json
 
 Errors of the form `TS2550: Property 'values' does not exist on type 'ObjectConstructor'. Do you need to change your target library?` land on exactly the lines the scorecard flags. Zero errors means the plugin is unaffected and needs no change.
 
+## A manifest version with no matching release
+
+> No release matches your manifest version
+
+This is worse than a failed review: the directory installs assets from the release tagged with the manifest version, so until one exists it can neither scan nor distribute the plugin. Bumping `manifest.json` in a commit without also pushing the tag is enough to cause it, and nothing local complains.
+
+**Fix**: push a tag matching the manifest version exactly, with no `v` prefix (`0.1.0`, not `v0.1.0`).
+
+```bash
+git tag 0.1.0 && git push origin 0.1.0
+```
+
+`node scripts/fleet-audit.mjs --releases` checks every maintained repo for this mismatch.
+
 ## Auditing the whole fleet
 
 The drift described above is invisible to a per-repo `pnpm lint`, so check it across every repo at once:
